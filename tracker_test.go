@@ -197,7 +197,7 @@ func TestPreflight(t *testing.T) {
 
 	l0 := testutil.MockList{}
 	l0.Create(0, 100, func(b *testutil.MockBlock) {
-		b = b.Extra("1")
+		b.Extra("1")
 	})
 
 	m.AddScenario(l0)
@@ -227,7 +227,7 @@ func TestTrackerSyncerRestarts(t *testing.T) {
 		if len(void) == 0 {
 			l.Create(first, last, func(b *testutil.MockBlock) {
 				if b.GetNum()%5 == 0 {
-					b = b.Log("0x1")
+					b.Log("0x1")
 				}
 			})
 			m.AddScenario(l)
@@ -278,7 +278,7 @@ func testSyncerReconcile(t *testing.T, iniLen, forkNum, endLen int) {
 	// test that the syncer can reconcile if there is a fork in the saved state
 	l := testutil.MockList{}
 	l.Create(0, iniLen, func(b *testutil.MockBlock) {
-		b = b.Log("0x01")
+		b.Log("0x01")
 	})
 
 	m := &testutil.MockClient{}
@@ -304,14 +304,14 @@ func testSyncerReconcile(t *testing.T, iniLen, forkNum, endLen int) {
 	l1 := testutil.MockList{}
 	l1.Create(0, endLen, func(b *testutil.MockBlock) {
 		if b.GetNum() < forkNum {
-			b = b.Log("0x01") // old fork
+			b.Log("0x01") // old fork
 		} else {
 			if b.GetNum() == forkNum {
 				b = b.Log("0x02")
 			} else {
 				b = b.Log("0x03")
 			}
-			b = b.Extra("123") // used to set the new fork
+			b.Extra("123") // used to set the new fork
 		}
 	})
 
@@ -759,7 +759,7 @@ func TestTrackerReconcile(t *testing.T) {
 
 type mockClientWithLimit struct {
 	limit uint64
-	testutil.MockClient
+	*testutil.MockClient
 }
 
 func (m *mockClientWithLimit) GetLogs(filter *web3.LogFilter) ([]*web3.Log, error) {
@@ -800,7 +800,7 @@ func TestTooMuchDataRequested(t *testing.T) {
 
 	mm := &mockClientWithLimit{
 		limit:      3,
-		MockClient: *m,
+		MockClient: m,
 	}
 
 	config := DefaultConfig()

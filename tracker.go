@@ -663,11 +663,6 @@ func (t *Tracker) syncImpl(ctx context.Context) error {
 				return err
 			}
 			t.emitLogs(EventDel, logs)
-
-			last, err = t.provider.GetBlockByNumber(web3.BlockNumber(ancestor), false)
-			if err != nil {
-				return err
-			}
 		}
 	}
 

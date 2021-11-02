@@ -1,5 +1,9 @@
 
-# Tracker
+# Eth-event-tracker
+
+Tracker of Ethereum events.
+
+### Example
 
 ```
 package main
