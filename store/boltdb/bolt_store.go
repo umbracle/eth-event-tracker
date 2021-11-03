@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 
 	"github.com/boltdb/bolt"
+	"github.com/umbracle/eth-event-tracker/store"
 	"github.com/umbracle/go-web3"
-	"github.com/umbracle/go-web3/tracker/store"
 )
 
 var _ store.Store = (*BoltStore)(nil)

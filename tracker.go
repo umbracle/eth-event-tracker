@@ -15,12 +15,12 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/umbracle/eth-event-tracker/store"
+	"github.com/umbracle/eth-event-tracker/store/inmem"
 	web3 "github.com/umbracle/go-web3"
 	"github.com/umbracle/go-web3/blocktracker"
 	"github.com/umbracle/go-web3/etherscan"
 	"github.com/umbracle/go-web3/jsonrpc/codec"
-	"github.com/umbracle/go-web3/tracker/store"
-	"github.com/umbracle/go-web3/tracker/store/inmem"
 )
 
 var (
@@ -70,22 +70,10 @@ func (f *FilterConfig) getFilterSearch() *web3.LogFilter {
 	return filter
 }
 
-type BlockTracker interface {
-	MaxBlockBacklog() uint64
-	Init() error
-	Start() error
-	Close() error
-	Subscribe() chan *blocktracker.BlockEvent
-	Len() int
-	LastBlocked() *web3.Block
-	BlocksBlocked() []*web3.Block
-	AcquireLock() blocktracker.Lock
-}
-
 // Config is the configuration of the tracker
 type Config struct {
 	BatchSize          uint64
-	BlockTracker       BlockTracker
+	BlockTracker       blocktracker.Subscription
 	EtherscanAPIKey    string
 	Filter             *FilterConfig
 	Store              store.Store
@@ -106,7 +94,7 @@ func WithBatchSize(b uint64) ConfigOption {
 	}
 }
 
-func WithBlockTracker(b BlockTracker) ConfigOption {
+func WithBlockTracker(b blocktracker.Subscription) ConfigOption {
 	return func(c *Config) {
 		c.BlockTracker = b
 	}
@@ -157,7 +145,7 @@ type Tracker struct {
 	store        store.Store
 	entry        store.Entry
 	preSyncOnce  sync.Once
-	blockTracker BlockTracker
+	blockTracker blocktracker.Subscription
 	synced       int32
 	BlockCh      chan *blocktracker.BlockEvent
 	ReadyCh      chan struct{}
@@ -549,22 +537,14 @@ func (t *Tracker) BatchSync(ctx context.Context) error {
 	}
 
 	if t.blockTracker == nil {
-		// run a specfic block tracker
-		t.blockTracker = blocktracker.NewBlockTracker(t.provider)
-		if err := t.blockTracker.Init(); err != nil {
-			return err
-		}
-		go t.blockTracker.Start()
+		tracker := blocktracker.NewBlockTracker(t.provider)
+		t.blockTracker = tracker.Subscribe()
+
 		go func() {
 			// track our stop
 			<-ctx.Done()
 			t.blockTracker.Close()
 		}()
-	} else {
-		// just try to init
-		if err := t.blockTracker.Init(); err != nil {
-			return err
-		}
 	}
 
 	close(t.ReadyCh)
@@ -589,7 +569,7 @@ func (t *Tracker) Sync(ctx context.Context) error {
 	}
 
 	// subscribe and sync
-	sub := t.blockTracker.Subscribe()
+	sub := t.blockTracker.GetEventCh()
 	go func() {
 		for {
 			select {

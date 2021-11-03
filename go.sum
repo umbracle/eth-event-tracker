@@ -114,6 +114,8 @@ github.com/umbracle/fastrlp v0.0.0-20210128110402-41364ca56ca8 h1:lWWKP+Oi7FSORl
 github.com/umbracle/fastrlp v0.0.0-20210128110402-41364ca56ca8/go.mod h1:z0AyVhz/7VbuYSaCB+tFgypZKD1DJL76ATih6XqFlig=
 github.com/umbracle/go-web3 v0.0.0-20211029073105-5da9ae17a7ad h1:OWXjnF/hX/Y9vYot9/BhO7nff1s2IQn6ZZ9jlwvKYm0=
 github.com/umbracle/go-web3 v0.0.0-20211029073105-5da9ae17a7ad/go.mod h1:ewphLEPDU44NJLSf5My9H367fW/qNksvjjKhWaS+2Dg=
+github.com/umbracle/go-web3 v0.0.0-20211103111714-4610a357e48e h1:e5iVP/veI3VWhJPrfp5aIuf5hVHRMFuekkcztDbCHM8=
+github.com/umbracle/go-web3 v0.0.0-20211103111714-4610a357e48e/go.mod h1:ewphLEPDU44NJLSf5My9H367fW/qNksvjjKhWaS+2Dg=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasthttp v1.4.0 h1:PuaTGZIw3mjYhhhbVbCQp8aciRZN9YdoB7MGX9Ko76A=

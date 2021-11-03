@@ -8,7 +8,7 @@ require (
 	github.com/lib/pq v1.10.3
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/stretchr/testify v1.7.0
-	github.com/umbracle/go-web3 v0.0.0-20211029073105-5da9ae17a7ad
+	github.com/umbracle/go-web3 v0.0.0-20211103111714-4610a357e48e
 )
 
 require (
