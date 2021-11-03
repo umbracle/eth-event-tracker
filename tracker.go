@@ -72,14 +72,21 @@ func (f *FilterConfig) getFilterSearch() *web3.LogFilter {
 
 // Config is the configuration of the tracker
 type Config struct {
-	BatchSize       uint64
-	BlockTracker    *blocktracker.BlockTracker // move to interface
-	EtherscanAPIKey string
-	Filter          *FilterConfig
-	Store           store.Store
+	BatchSize          uint64
+	BlockTracker       *blocktracker.BlockTracker // move to interface
+	EtherscanAPIKey    string
+	Filter             *FilterConfig
+	Store              store.Store
+	ConfirmationBlocks uint64
 }
 
 type ConfigOption func(*Config)
+
+func WithConfirmationBlock(b uint64) ConfigOption {
+	return func(c *Config) {
+		c.ConfirmationBlocks = b
+	}
+}
 
 func WithBatchSize(b uint64) ConfigOption {
 	return func(c *Config) {
@@ -335,6 +342,16 @@ func tooMuchDataRequestedError(err error) bool {
 	return false
 }
 
+func (t *Tracker) storeLogs(logs []*web3.Log, block *web3.Block) error {
+	if err := t.entry.StoreLogs(logs); err != nil {
+		return err
+	}
+	if err := t.storeLastBlock(block); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (t *Tracker) syncBatch(ctx context.Context, from, to uint64) error {
 	query := t.config.Filter.getFilterSearch()
 
@@ -366,20 +383,16 @@ START:
 		}
 	}
 
-	// add logs to the store
-	if err := t.entry.StoreLogs(logs); err != nil {
-		return err
-	}
-	t.emitLogs(EventAdd, logs)
-
 	// update the last block entry
 	block, err := t.provider.GetBlockByNumber(web3.BlockNumber(dst), false)
 	if err != nil {
 		return err
 	}
-	if err := t.storeLastBlock(block); err != nil {
+	// add logs to the store
+	if err := t.storeLogs(logs, block); err != nil {
 		return err
 	}
+	t.emitLogs(EventAdd, logs)
 
 	// check if the execution is over after each query batch
 	if err := ctx.Err(); err != nil {
@@ -813,16 +826,11 @@ func (t *Tracker) doFilter(added []*web3.Block, removed []*web3.Block) (*Event, 
 		if err != nil {
 			return nil, err
 		}
-
-		// add logs to the store
-		if err := t.entry.StoreLogs(logs); err != nil {
-			return nil, err
-		}
 		evnt.Added = append(evnt.Added, logs...)
 	}
 
-	// store the last block as the new index
-	if err := t.storeLastBlock(added[len(added)-1]); err != nil {
+	// store the logs
+	if err := t.storeLogs(evnt.Added, added[len(added)-1]); err != nil {
 		return nil, err
 	}
 	return evnt, nil

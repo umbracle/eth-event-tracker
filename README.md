@@ -5,7 +5,7 @@ Tracker of Ethereum events.
 
 ### Example
 
-```
+```golang
 package main
 
 import (
@@ -78,7 +78,7 @@ func main() {
 	if lastBlock != nil {
 		fmt.Printf("Last block processed: %d\n", lastBlock.Number)
 	}
-
+	
 	ctx, cancelFn := context.WithCancel(context.Background())
 	go func() {
 		go func() {
@@ -138,6 +138,6 @@ func handleSignals(cancelFn context.CancelFunc) int {
 
 You can query the ETH2.0 Deposit contract like so:
 
-```
-go run main.go --endpoint https://mainnet.infura.io/v3/... --target 0x00000000219ab540356cbb839cbe05303d7705fa
+```console
+$ go run main.go --endpoint https://mainnet.infura.io/v3/... --target 0x00000000219ab540356cbb839cbe05303d7705fa
 ```
