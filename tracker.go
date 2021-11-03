@@ -70,10 +70,22 @@ func (f *FilterConfig) getFilterSearch() *web3.LogFilter {
 	return filter
 }
 
+type BlockTracker interface {
+	MaxBlockBacklog() uint64
+	Init() error
+	Start() error
+	Close() error
+	Subscribe() chan *blocktracker.BlockEvent
+	Len() int
+	LastBlocked() *web3.Block
+	BlocksBlocked() []*web3.Block
+	AcquireLock() blocktracker.Lock
+}
+
 // Config is the configuration of the tracker
 type Config struct {
 	BatchSize          uint64
-	BlockTracker       *blocktracker.BlockTracker // move to interface
+	BlockTracker       BlockTracker
 	EtherscanAPIKey    string
 	Filter             *FilterConfig
 	Store              store.Store
@@ -94,7 +106,7 @@ func WithBatchSize(b uint64) ConfigOption {
 	}
 }
 
-func WithBlockTracker(b *blocktracker.BlockTracker) ConfigOption {
+func WithBlockTracker(b BlockTracker) ConfigOption {
 	return func(c *Config) {
 		c.BlockTracker = b
 	}
@@ -145,7 +157,7 @@ type Tracker struct {
 	store        store.Store
 	entry        store.Entry
 	preSyncOnce  sync.Once
-	blockTracker *blocktracker.BlockTracker
+	blockTracker BlockTracker
 	synced       int32
 	BlockCh      chan *blocktracker.BlockEvent
 	ReadyCh      chan struct{}

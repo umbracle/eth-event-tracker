@@ -696,7 +696,7 @@ func TestTrackerReconcile(t *testing.T) {
 
 			// build past block history
 			for _, b := range c.History.ToBlocks() {
-				tt.blockTracker.AddBlockLocked(b)
+				btracker.AddBlockLocked(b)
 			}
 			// add the history to the store
 			for _, b := range c.History {
@@ -704,7 +704,7 @@ func TestTrackerReconcile(t *testing.T) {
 			}
 
 			for _, b := range c.Reconcile {
-				aux, err := tt.blockTracker.HandleBlockEvent(b.block.Block())
+				aux, err := btracker.HandleBlockEvent(b.block.Block())
 				if err != nil {
 					t.Fatal(err)
 				}
