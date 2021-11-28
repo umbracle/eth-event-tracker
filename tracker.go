@@ -39,7 +39,6 @@ const (
 type FilterConfig struct {
 	Address []web3.Address `json:"address"`
 	Topics  []*web3.Hash   `json:"topics"`
-	Start   uint64
 	Hash    string
 	Async   bool
 }
@@ -72,11 +71,13 @@ func (f *FilterConfig) getFilterSearch() *web3.LogFilter {
 
 // Config is the configuration of the tracker
 type Config struct {
-	BatchSize       uint64
-	BlockTracker    *blocktracker.BlockTracker // move to interface
-	EtherscanAPIKey string
-	Filter          *FilterConfig
-	Store           store.Store
+	BatchSize         uint64
+	BlockTracker      *blocktracker.BlockTracker // move to interface
+	EtherscanAPIKey   string
+	StartBlock        uint64
+	Filter            *FilterConfig
+	Store             store.Store
+	BlockConfirmation uint64
 }
 
 type ConfigOption func(*Config)
@@ -108,6 +109,18 @@ func WithFilter(f *FilterConfig) ConfigOption {
 func WithEtherscan(k string) ConfigOption {
 	return func(c *Config) {
 		c.EtherscanAPIKey = k
+	}
+}
+
+func WithConfirmationBlock(blocks uint64) ConfigOption {
+	return func(c *Config) {
+		c.BlockConfirmation = blocks
+	}
+}
+
+func WithStartBlock(block uint64) ConfigOption {
+	return func(c *Config) {
+		c.StartBlock = block
 	}
 }
 
@@ -445,8 +458,8 @@ func (t *Tracker) preSyncCheckImpl() error {
 
 func (t *Tracker) fastTrack(filterConfig *FilterConfig) (*web3.Block, error) {
 	// Try to use first the user provided block if any
-	if filterConfig.Start != 0 {
-		bb, err := t.provider.GetBlockByNumber(web3.BlockNumber(filterConfig.Start), false)
+	if t.config.StartBlock != 0 {
+		bb, err := t.provider.GetBlockByNumber(web3.BlockNumber(t.config.StartBlock), false)
 		if err != nil {
 			return nil, err
 		}
