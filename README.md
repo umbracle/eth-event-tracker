@@ -20,9 +20,9 @@ import (
 	web3 "github.com/umbracle/go-web3"
 	"github.com/umbracle/go-web3/abi"
 	"github.com/umbracle/go-web3/jsonrpc"
-	"github.com/umbracle/go-web3/tracker"
+	"github.com/umbracle/eth-event-tracker"
 
-	boltdbStore "github.com/umbracle/go-web3/tracker/store/boltdb"
+	boltdbStore "github.com/umbracle/eth-event-tracker/store/boltdb"
 )
 
 var depositEvent = abi.MustNewEvent(`DepositEvent(

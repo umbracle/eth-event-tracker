@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/umbracle/go-web3/tracker/store"
+	"github.com/umbracle/eth-event-tracker/store"
 )
 
 func setupDB(t *testing.T) (store.Store, func()) {

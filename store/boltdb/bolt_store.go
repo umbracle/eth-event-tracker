@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 
 	"github.com/boltdb/bolt"
+	"github.com/umbracle/eth-event-tracker/store"
 	"github.com/umbracle/go-web3"
-	"github.com/umbracle/go-web3/tracker/store"
 )
 
 var _ store.Store = (*BoltStore)(nil)
@@ -137,8 +137,14 @@ func (e *Entry) LastIndex() (uint64, error) {
 	defer tx.Rollback()
 
 	curs := tx.Bucket(e.bucket).Cursor()
-	if last, _ := curs.Last(); last != nil {
-		return bytesToUint64(last) + 1, nil
+	for k, v := curs.Last(); k != nil; k, v = curs.Prev() {
+		var log web3.Log
+		if err := log.UnmarshalJSON(v); err != nil {
+			return 0, err
+		}
+		if !log.Removed {
+			return bytesToUint64(k) + 1, nil
+		}
 	}
 	return 0, nil
 }
@@ -186,9 +192,20 @@ func (e *Entry) RemoveLogs(indx uint64) error {
 	}
 	defer tx.Rollback()
 
-	curs := tx.Bucket(e.bucket).Cursor()
-	for k, _ := curs.Seek(indxKey); k != nil; k, _ = curs.Next() {
-		if err := curs.Delete(); err != nil {
+	bkt := tx.Bucket(e.bucket)
+	curs := bkt.Cursor()
+	for k, v := curs.Seek(indxKey); k != nil; k, v = curs.Next() {
+		var log web3.Log
+		if err := log.UnmarshalJSON(v); err != nil {
+			return err
+		}
+		log.Removed = true
+
+		v2, err := log.MarshalJSON()
+		if err != nil {
+			return err
+		}
+		if err := bkt.Put(k, v2); err != nil {
 			return err
 		}
 	}

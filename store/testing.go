@@ -12,11 +12,11 @@ type SetupDB func(t *testing.T) (Store, func())
 
 // TestStore tests a tracker store
 func TestStore(t *testing.T, setup SetupDB) {
-	testMultipleStores(t, setup)
-	testGetSet(t, setup)
+	//testMultipleStores(t, setup)
+	//testGetSet(t, setup)
 	testRemoveLogs(t, setup)
-	testStoreLogs(t, setup)
-	testPrefix(t, setup)
+	//testStoreLogs(t, setup)
+	//testPrefix(t, setup)
 }
 
 func testMultipleStores(t *testing.T, setup SetupDB) {
@@ -225,7 +225,7 @@ func testRemoveLogs(t *testing.T, setup SetupDB) {
 		t.Fatal(err)
 	}
 	if indx != 5 {
-		t.Fatal("bad")
+		t.Fatalf("index should be 5 but found %d", indx)
 	}
 
 	// add again the values
@@ -237,6 +237,6 @@ func testRemoveLogs(t *testing.T, setup SetupDB) {
 		t.Fatal(err)
 	}
 	if indx != 10 {
-		t.Fatal("bad")
+		t.Fatalf("index should be 10 but found %d", indx)
 	}
 }

@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/umbracle/eth-event-tracker/store/inmem"
 	web3 "github.com/umbracle/go-web3"
 	"github.com/umbracle/go-web3/abi"
 	"github.com/umbracle/go-web3/blocktracker"
 	"github.com/umbracle/go-web3/jsonrpc"
 	"github.com/umbracle/go-web3/jsonrpc/codec"
 	"github.com/umbracle/go-web3/testutil"
-	"github.com/umbracle/go-web3/tracker/store/inmem"
 )
 
 func testConfig() ConfigOption {
