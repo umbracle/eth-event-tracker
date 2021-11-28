@@ -12,11 +12,11 @@ type SetupDB func(t *testing.T) (Store, func())
 
 // TestStore tests a tracker store
 func TestStore(t *testing.T, setup SetupDB) {
-	//testMultipleStores(t, setup)
-	//testGetSet(t, setup)
+	testMultipleStores(t, setup)
+	testGetSet(t, setup)
 	testRemoveLogs(t, setup)
-	//testStoreLogs(t, setup)
-	//testPrefix(t, setup)
+	testStoreLogs(t, setup)
+	testPrefix(t, setup)
 }
 
 func testMultipleStores(t *testing.T, setup SetupDB) {
